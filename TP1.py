@@ -55,7 +55,7 @@ def inconsistency_degree(knowledge_base_wc, clause):
     knowledge_base_c = [x[1:] for x in knowledge_base_wc]  # Remove the weights
     while l < u:
         r = (l + u) // 2  # Integer division
-        if isinstance(pycosat.solve(knowledge_base_c[l:u] + negation(clause)), list):  # Picosat found a solution
+        if isinstance(pycosat.solve(knowledge_base_c[r:u] + negation(clause)), list):  # Picosat found a solution
             u = r - 1
         else:
             l = r
