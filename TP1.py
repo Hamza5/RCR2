@@ -9,6 +9,7 @@ _wcnf_file_msg = 'fichier.wcnf'
 _dnf_msg = 'Clause FND'
 _sigma_msg = 'Sigma ='
 _phi_msg = 'Phi ='
+_neg_Phi_msg = 'neg(Phi) ='
 _val_msg = 'Val(Phi, Sigma) ='
 _interest_msg = 'Variable ='
 
@@ -55,12 +56,18 @@ def inconsistency_degree(knowledge_base_wc, clause):
     u = len(knowledge_base_wc)
     while l < u:
         r = (l + u) // 2  # Integer division
-        if isinstance(pycosat.solve([list(x) for x in knowledge_base_wc[r:u]] + negation(clause)), list):
+        print('u =', u, 'l =', l, 'r =', r)
+        union = [list(x) for x in knowledge_base_wc[r:u]] + negation(clause)
+        print(union)
+        results = pycosat.solve(union)
+        print(results)
+        if isinstance(results, list):
             # Picosat found a solution
             u = r - 1
         else:
             l = r
-    return knowledge_base_wc.weights[r]  # Weight of the clause
+        input()
+    return knowledge_base_wc[r][0].weight  # Weight of the clause
 
 
 class WeightedClause:
@@ -117,32 +124,23 @@ class WeightedKnowledgeBase:
     Represent a CNF base of weighted DNF clauses.
     """
 
-    def __init__(self, kb_wc=list()):
-        assert isinstance(kb_wc, list) and all([isinstance(x, list) for x in kb_wc])
-        self.clauses = {}
-        for x in kb_wc:
-            weighted_clause = WeightedClause(x[0], x[1:])
-            self.add_clause(weighted_clause)
-        self.weights = [w for w in sorted(self.clauses.keys())]
-
-    def add_clause(self, w_clause):
-        assert isinstance(w_clause, WeightedClause)
-        if w_clause.weight not in self.clauses:
-            self.clauses[w_clause.weight] = [w_clause]
-        else:
-            self.clauses[w_clause.weight].append(w_clause)
+    def __init__(self, clauses):
+        assert all([isinstance(x, list) for x in clauses])
+        self.clauses = sorted([WeightedClause(weight=c[0], dnf_clause=c[1:]) for c in clauses])
+        self.strates = [0]
+        for i in range(1, len(self.clauses[1:])):
+            if self.clauses[i].weight != self.clauses[i - 1].weight:
+                self.strates.append(i)
+        self.strates.append(len(self.clauses))
 
     def __len__(self):
-        return len(self.weights)
+        return len(self.strates) - 1
 
     def __getitem__(self, item):
         if isinstance(item, slice):
-            items = []
-            for i in range(item.start, item.stop):
-                items += self.clauses[self.weights[i]]
-            return [list(x) for x in items]
+            return self.clauses[self.strates[item.start]:self.strates[item.stop]]
         else:
-            return [list(x) for x in self.clauses[self.weights[item]]]
+            return self.clauses[self.strates[item]:self.strates[item+1]]
 
 
 if __name__ == '__main__':
@@ -151,9 +149,13 @@ if __name__ == '__main__':
             Sigma = load_weighted_knowledge_base(sys.argv[1])  # WCNF file
             Phi = [int(x) for x in re.split('\s+', sys.argv[2])]  # DNF clause
             print(_phi_msg, Phi)
+            print(_neg_Phi_msg, negation(Phi))
             val = inconsistency_degree(Sigma, Phi)
             print(_val_msg, val)
-            print(_interest_msg, Sigma.clauses[val])
+            for st in Sigma:
+                if st[0].weight == val:
+                    print(_interest_msg, st)
+                    break
         except FileNotFoundError as e:
             print(_read_error_msg, e.filename, file=sys.stderr)
     else:
