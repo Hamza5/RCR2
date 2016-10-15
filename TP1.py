@@ -11,7 +11,9 @@ _sigma_msg = 'Sigma ='
 _phi_msg = 'Phi ='
 _neg_Phi_msg = 'neg(Phi) ='
 _val_msg = 'Val(Phi, Sigma) ='
-_interest_msg = 'Variable ='
+_interest_msg = 'Variables d\'intérêt ='
+_union_msg = 'Sigma U neg(Phi) ='
+_results_msg = 'Résultat de satisfiabilité :'
 
 
 def load_weighted_knowledge_base(file_path):
@@ -58,15 +60,15 @@ def inconsistency_degree(knowledge_base_wc, clause):
         r = (l + u) // 2  # Integer division
         print('u =', u, 'l =', l, 'r =', r)
         union = [list(x) for x in knowledge_base_wc[r:u]] + negation(clause)
-        print(union)
+        print(_union_msg, union)
         results = pycosat.solve(union)
-        print(results)
+        print(_results_msg, results)
         if isinstance(results, list):
             # Picosat found a solution
             u = r - 1
         else:
             l = r
-        input()
+        print()
     return knowledge_base_wc[r][0].weight  # Weight of the clause
 
 
@@ -149,7 +151,7 @@ if __name__ == '__main__':
             Sigma = load_weighted_knowledge_base(sys.argv[1])  # WCNF file
             Phi = [int(x) for x in re.split('\s+', sys.argv[2])]  # DNF clause
             print(_phi_msg, Phi)
-            print(_neg_Phi_msg, negation(Phi))
+            print(_neg_Phi_msg, negation(Phi), end='\n\n')
             val = inconsistency_degree(Sigma, Phi)
             print(_val_msg, val)
             for st in Sigma:
