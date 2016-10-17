@@ -7,12 +7,11 @@ _read_error_msg = 'Impossible de lire le fichier'
 _usage_msg = 'Usage : {} <{}> <{}>'
 _wcnf_file_msg = 'fichier.wcnf'
 _dnf_msg = 'Clause FND'
-_sigma_msg = 'Sigma ='
 _phi_msg = 'Phi ='
 _neg_Phi_msg = 'neg(Phi) ='
 _val_msg = 'Val(Phi, Sigma) ='
 _interest_msg = 'Variables d\'intérêt ='
-_union_msg = 'Sigma U neg(Phi) ='
+_union_msg = 'Sigma*_r U neg(Phi) ='
 _results_msg = 'Résultat de satisfiabilité :'
 
 
