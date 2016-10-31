@@ -1,0 +1,49 @@
+[System]
+Name='TP4'
+Type='mamdani'
+Version=2.0
+NumInputs=2
+NumOutputs=1
+NumRules=9
+AndMethod='min'
+OrMethod='max'
+ImpMethod='min'
+AggMethod='max'
+DefuzzMethod='centroid'
+
+[Input1]
+Name='Température'
+Range=[-30 30]
+NumMFs=3
+MF1='Basse':'trapmf',[-30 -30 -20 -10]
+MF2='Correcte':'trapmf',[-20 -10 10 20]
+MF3='Elevée':'trapmf',[10 20 30 30]
+
+[Input2]
+Name='Hygrométrie'
+Range=[0 100]
+NumMFs=3
+MF1='Basse':'trapmf',[0 0 10 30]
+MF2='Correcte':'trapmf',[10 30 70 90]
+MF3='Elevé':'trapmf',[70 90 100 100]
+
+[Output1]
+Name='EcartVentelle'
+Range=[-50 50]
+NumMFs=5
+MF1='NégatifGrand':'trapmf',[-50 -50 -25 -20]
+MF2='NégatifPetit':'trapmf',[-25 -20 -10 -5]
+MF3='Nul':'trapmf',[-10 -5 5 10]
+MF4='PositifPetit':'trapmf',[5 10 20 25]
+MF5='PositifGrand':'trapmf',[20 25 50 50]
+
+[Rules]
+3 3, 4 (1) : 1
+3 2, 2 (1) : 1
+3 1, 1 (1) : 1
+2 3, 4 (1) : 1
+2 2, 3 (1) : 1
+2 1, 2 (1) : 1
+1 3, 5 (1) : 1
+1 2, 4 (1) : 1
+1 1, 2 (1) : 1
